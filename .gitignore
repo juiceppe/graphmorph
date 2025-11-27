@@ -2,3 +2,5 @@
 .venv
 src/graphmorph/main.py
 .idea
+.env
+**/__pycache__/
