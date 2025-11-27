@@ -1,13 +1,17 @@
 """Workflows for GraphMorph."""
 
-from .schema_export import (
-    build_schema_export_workflow,
+from .export import (
+    build_export_workflow,
+    build_export_subgraph,
     export_api_schema,
-    schema_export_workflow,
+    export_workflow,
+    export_subgraph
 )
 
 __all__ = [
-    "build_schema_export_workflow",
+    "build_export_workflow",
+    "build_export_subgraph",
     "export_api_schema",
-    "schema_export_workflow",
+    "export_workflow",
+    "export_subgraph"
 ]

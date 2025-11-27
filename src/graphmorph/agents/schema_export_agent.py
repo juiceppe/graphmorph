@@ -10,13 +10,16 @@ from graphmorph.config import get_config
 # System Prompt
 # ---------------------------------------------------------------------------
 
-SCHEMA_EXPORT_PROMPT = """You are a Schema Export Agent. Your job is to extract API schemas from any endpoint."""
+
+SCHEMA_EXPORT_PROMPT = """You are a Schema Export Agent. Your job is to extract API schemas from any endpoint.
+
+When you have successfully retrieved schema information using tools, you MUST summarize the results for the user in a clear, helpful message. Do not end silently after tool use - always provide a final response explaining what you found or any errors encountered."""
 
 # ---------------------------------------------------------------------------
 # Agent Node Function
 # ---------------------------------------------------------------------------
 
-def create_schema_export_agent():
+def create_export_agent():
     config = get_config()
 
     llm = ChatAnthropic(
@@ -39,4 +42,4 @@ def create_schema_export_agent():
 
     return agent_node
 
-schema_export_agent = create_schema_export_agent()
+schema_export_agent = create_export_agent()

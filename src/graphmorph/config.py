@@ -12,7 +12,7 @@ class Config:
     temperature: float = 0
 
     #HTTP Settings
-    request_timeout: int = 30 #Seconds
+    request_timeout: int = 120 #Seconds
 
     @classmethod
     def from_env(cls) -> "Config":

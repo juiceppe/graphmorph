@@ -3,13 +3,13 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 
 from graphmorph.state import AgentState
-from graphmorph.tools import ALL_TOOLS
-from graphmorph.agents import create_schema_export_agent
+from graphmorph.tools import ALL_TOOLS, DISCOVERY_TOOLS, SCHEMA_TOOLS
+from graphmorph.agents import create_export_agent
 
-def build_schema_export_workflow(checkpointer=None):
+def build_export_workflow(checkpointer=None):
     workflow = StateGraph(AgentState)
 
-    workflow.add_node("agent", create_schema_export_agent())
+    workflow.add_node("agent", create_export_agent())
 
     workflow.add_node("tools", ToolNode(ALL_TOOLS))
 
@@ -31,6 +31,25 @@ def build_schema_export_workflow(checkpointer=None):
 
     return workflow.compile(checkpointer=checkpointer)
 
+
+def build_export_subgraph():
+    workflow = StateGraph(AgentState)
+
+    workflow.add_node("agent", create_export_agent())
+    workflow.add_node("tools", ToolNode(DISCOVERY_TOOLS + SCHEMA_TOOLS))
+    workflow.add_edge(START, "agent")
+    workflow.add_conditional_edges(
+        "agent",
+        tools_condition,
+        {
+            "tools": "tools",
+            END: END
+        }
+    )
+    workflow.add_edge("tools", "agent")
+
+    return workflow.compile()
+
 def export_api_schema(endpoint: str, name: str | None = None) -> dict:
 
     from langchain_core.messages import HumanMessage
@@ -40,7 +59,7 @@ def export_api_schema(endpoint: str, name: str | None = None) -> dict:
 
     state["messages"] = [HumanMessage(content=f"Please analyze this API and export its schema: {endpoint}")]
 
-    workflow = build_schema_export_workflow()
+    workflow = build_export_workflow()
 
     config = {"configurable": {"thread_id": f"export-{endpoint}"}}
 
@@ -49,4 +68,12 @@ def export_api_schema(endpoint: str, name: str | None = None) -> dict:
     return result
 
 
-schema_export_workflow = build_schema_export_workflow()
+# ---------------------------------------------------------------------------
+# Pre-built Instances
+# ---------------------------------------------------------------------------
+
+# Standalone workflow (with checkpointer)
+export_workflow = build_export_workflow()
+
+# Subgraph for composition (no checkpointer)
+export_subgraph = build_export_subgraph()
